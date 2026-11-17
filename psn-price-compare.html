@@ -1,0 +1,2403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PS5 Store Price — SA vs USA</title>
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: #121821;
+    --panel-2: #18202c;
+    --text: #e8eef7;
+    --muted: #8b98ab;
+    --accent: #3d8bfd;
+    --accent-2: #2f6fdd;
+    --line: #243041;
+    --ok: #3dd68c;
+    --warn: #f5a524;
+    --radius: 14px;
+    font-size: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #16233a 0%, var(--bg) 55%);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 16px 64px;
+  }
+  header { text-align: center; margin-bottom: 16px; }
+  header h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+  }
+
+  .search-box {
+    position: sticky;
+    top: 12px;
+    z-index: 5;
+    display: flex;
+    gap: 10px;
+    background: color-mix(in srgb, var(--panel) 92%, transparent);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 10px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.35);
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    display: flex;
+  }
+  .search-box input {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 1.05rem;
+    outline: none;
+  }
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box button {
+    border: 0;
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 0 18px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  .search-box button:hover { background: var(--accent-2); }
+
+  /* Autocomplete dropdown */
+  .ac {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.45);
+    max-height: min(420px, 70vh);
+    overflow-y: auto;
+    display: none;
+    z-index: 20;
+    padding: 6px;
+    margin: 0;
+    list-style: none;
+  }
+  .ac.open { display: block; }
+  .ac li { margin: 0; }
+  .ac li button {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    font: inherit;
+  }
+  .ac li button:hover,
+  .ac li button[aria-selected="true"] {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+  .ac img {
+    width: 40px; height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: var(--panel-2);
+  }
+  .ac .ac-name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ac .ac-sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .ac .ac-meta {
+    font-size: 0.72rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .ac .ac-empty {
+    padding: 14px 12px;
+    color: var(--muted);
+    font-size: 0.88rem;
+    text-align: center;
+  }
+  .ac mark {
+    background: transparent;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .status {
+    margin: 10px 4px 6px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    min-height: 1.1em;
+  }
+  .status:empty { display: none; }
+  .status .spin {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid var(--accent);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    vertical-align: -2px;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .results { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+  .results:empty { display: none; }
+  .results li button {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 10px;
+    align-items: center;
+    text-align: left;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 6px 8px;
+    cursor: pointer;
+    transition: border-color .15s, transform .1s;
+  }
+  .results li button:hover { border-color: var(--accent); }
+  .results li button:active { transform: scale(.995); }
+  .results img {
+    width: 40px; height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: var(--panel-2);
+  }
+  .r-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .r-meta { color: var(--muted); font-size: 0.72rem; margin-top: 2px; }
+
+  /* Each selected game = one full price card, always open, stacked */
+  .saved { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; }
+  .saved:empty { display: none; }
+  .game-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px;
+    position: relative;
+  }
+  .game-card.loading { opacity: 0.92; }
+  .game-card .detail-head {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-right: 28px;
+  }
+  .game-card .detail-head img {
+    width: 44px; height: 44px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: var(--panel-2);
+    flex-shrink: 0;
+  }
+  .game-card .detail-head h2 {
+    margin: 0 0 1px;
+    font-size: 0.95rem;
+    line-height: 1.25;
+  }
+  .game-card .detail-head .sub { color: var(--muted); font-size: 0.72rem; }
+  .game-card .del {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 4px 6px;
+    border-radius: 6px;
+  }
+  .game-card .del:hover { color: #ff6b6b; background: rgba(255,107,107,.12); }
+
+  .price-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  @media (max-width: 520px) {
+    .price-grid { grid-template-columns: 1fr; }
+  }
+  .price-card {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-width: 0;
+  }
+  .price-card .label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .price-card .amount-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 8px;
+    margin-bottom: 2px;
+  }
+  .price-card .amount {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .price-card .conv {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--warn);
+    white-space: nowrap;
+  }
+  .price-card .conv .fx {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .price-card.sa .amount { color: var(--ok); }
+  .price-card.us .amount { color: var(--accent); }
+  .price-card .note { font-size: 0.68rem; color: var(--muted); margin-bottom: 6px; }
+  .price-card .note:empty { display: none; margin: 0; }
+  .price-card a {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 6px;
+    padding: 4px 8px;
+  }
+  .price-card a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .convert {
+    margin-top: 6px;
+    background: var(--panel-2);
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .convert .spin {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid var(--accent);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  .empty { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>PS5 Store Prices</h1>
+  </header>
+
+  <div class="search-box">
+    <div class="search-wrap">
+      <input id="q" type="search" placeholder="Search PS5 games…" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="ac" aria-autocomplete="list" />
+      <ul class="ac" id="ac" role="listbox" aria-label="Suggestions"></ul>
+    </div>
+    <button id="go" type="button">Search</button>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <ul class="results" id="results"></ul>
+
+  <ul class="saved" id="saved" aria-label="Games"></ul>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const CHIHIRO = "https://store.playstation.com/store/api/chihiro/00_09_000";
+  // Same-origin when served by psn-proxy (http://127.0.0.1:8787/).
+  // Absolute fallback only for file:// opens — Chrome often blocks those.
+  const PROXY =
+    location.protocol === "http:" || location.protocol === "https:"
+      ? ""
+      : "http://127.0.0.1:8787";
+  const REGIONS = {
+    sa: { cc: "sa", lang: "ar", locale: "ar-sa", label: "Saudi Arabia", currency: "SAR" },
+    us: { cc: "us", lang: "en", locale: "en-us", label: "USA", currency: "USD" },
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const statusEl = $("status");
+  const resultsEl = $("results");
+  const inputEl = $("q");
+  const savedEl = $("saved");
+  const SAVED_KEY = "psn_saved_games_v3";
+
+  let searchToken = 0;
+  let acToken = 0;
+  let debounceTimer = null;
+  let acIndex = -1;
+  let acItems = [];
+  let fx = null;
+  let saved = [];
+  let lastResults = [];
+  let resultsHiddenForDetail = false;
+  const priceCache = new Map();
+  const loadingKeys = new Set();
+  const acEl = $("ac");
+
+  function setStatus(html) {
+    statusEl.innerHTML = html || "";
+  }
+
+  function normName(s) {
+    s = String(s || "").toLowerCase();
+    // Strip trademark symbols BEFORE NFKD — NFKD expands ™→"tm", so a
+    // later strip never matches and "Battlefield™ 6" becomes "battlefieldtm 6"
+    // which scores only 0.5 against the query (below the 0.55 keep threshold).
+    s = s.replace(/[™®©]/g, "");
+    // ragnarök → ragnarok, é → e, etc.
+    if (s.normalize) s = s.normalize("NFKD").replace(/[̀-ͯ]/g, "");
+    return s
+      .replace(/[’‘`´'""]+/g, "") // marvel's → marvels (same as query normalize)
+      .replace(/[^\p{L}\p{N}]+/gu, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // Chihiro search is picky: hyphens/apostrophes often return 0 results
+  function normalizeQuery(q) {
+    return String(q || "")
+      .replace(/[™®©]/g, "") // strip trademark symbols before other transforms
+      .replace(/[’‘`´'""]+/g, "") // drop apostrophes entirely (marvel's → marvels)
+      .replace(/[-–—_/\\]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // Common gaming abbreviations → full titles chihiro actually indexes.
+  // Applied in order; series-specific number rules run AFTER word swaps so
+  // "cod mw4" → "call of duty modern warfare 4" (never "… mw4").
+  const ABBREV = [
+    [/\bgta\s*6\b/gi, "grand theft auto vi"],
+    [/\bgta\s*v\b/gi, "grand theft auto v"],
+    [/\bgta\s*4\b/gi, "grand theft auto iv"],
+    [/\bgta\b/gi, "grand theft auto"],
+    // CoD / Modern Warfare — before bare "cod"
+    [/\bmw\s*([0-9]+)\b/gi, "modern warfare $1"],
+    [/\bmw\b/gi, "modern warfare"],
+    [/\bcod\s*bo\s*([0-9]+)/gi, "call of duty black ops $1"],
+    [/\bcod\s*6\b/gi, "call of duty black ops"],
+    [/\bcod\s*8\b/gi, "call of duty modern warfare 2"],
+    [/\bcod\s*mw\s*([0-9]+)/gi, "call of duty modern warfare $1"],
+    [/\bcod\b/gi, "call of duty"],
+    [/\btarkov\b/gi, "escape from tarkov"],
+    [/\bfifa\b/gi, "ea sports fc"],
+    [/\bnba\s*2k\b/gi, "nba 2k"],
+  ];
+
+  // Only romanize series that store titles with VI/IV — never "Modern Warfare 4"
+  // Battlefield 6 / 2042 etc. use digits in the store title, not VI.
+  function shouldRomanize(s) {
+    if (/modern warfare|battlefield|nba|fifa|ea sports fc|2k/i.test(s)) return false;
+    return true;
+  }
+
+  // "gta 6" → "grand theft auto vi" (plus digit form via romanToDigit in variants)
+  function expandQuery(q) {
+    let s = String(q || "");
+    for (const [re, to] of ABBREV) s = s.replace(re, to);
+    if (shouldRomanize(s)) {
+      s = s.replace(/\b6\b/gi, "vi").replace(/\b5\b/gi, "v").replace(/\b4\b/gi, "iv")
+           .replace(/\b3\b/gi, "iii").replace(/\b2\b/gi, "ii");
+    }
+    return s;
+  }
+
+  function romanToDigit(s) {
+    return String(s || "")
+      .replace(/\bvi\b/gi, "6")
+      .replace(/\biv\b/gi, "4")
+      .replace(/\biii\b/gi, "3")
+      .replace(/\bii\b/gi, "2")
+      .replace(/\bv\b/gi, "5");
+  }
+
+  const STOPWORDS = new Set([
+    "the","a","an","of","and","or","for","to","in","on","at","with","from",
+    "call","duty","war","modern","grand","theft","auto","of","for","and",
+  ]);
+
+  // Expand + compact forms chihiro ranks well.
+  // Lead with useful multi-token forms — never bare stopwords ("call of").
+  function queryVariants(raw) {
+    const expanded = expandQuery(raw);
+    const base = normalizeQuery(expanded);
+    const original = normalizeQuery(raw);
+    const variants = [];
+    const push = (s) => {
+      s = String(s || "").trim();
+      if (s && !variants.includes(s)) variants.push(s);
+    };
+
+    push(base);
+    push(original);
+
+    // Extra useful series forms
+    const extra = expandUsefulForms(raw, base);
+    for (const e of extra) push(e);
+
+    if (base !== original) {
+      push(base.replace(/\s+/g, ""));
+      const t = base.split(/\s+/).filter(Boolean);
+      if (t.length >= 3) push(t.slice(0, -1).join("") + " " + t[t.length - 1]);
+    }
+
+    const tokens = base.split(/\s+/).filter(Boolean);
+    const noSpace = base.replace(/\s+/g, "");
+    if (tokens.length > 1) {
+      push(tokens.join(""));
+      if (tokens.length >= 3) {
+        push(tokens.slice(0, -1).join("") + " " + tokens[tokens.length - 1]);
+      }
+      // Suffix window (last 2–3 content words): "modern warfare 4", "war ragnarok"
+      if (tokens.length >= 3) push(tokens.slice(-3).join(" "));
+      if (tokens.length >= 2) push(tokens.slice(-2).join(" "));
+      // Prefix only if it isn't pure stopwords ("call of" is useless)
+      const head = tokens.slice(0, 2).join(" ");
+      if (tokens.length >= 2 && !isStopPhrase(head)) push(head);
+      for (let i = tokens.length - 1; i >= 3; i--) {
+        const pref = tokens.slice(0, i).join(" ");
+        if (!isStopPhrase(pref)) push(pref);
+      }
+      push(noSpace);
+      if (shouldRomanize(base)) {
+        const digit = romanToDigit(base);
+        if (digit !== base) push(digit);
+      }
+    }
+
+    return variants.slice(0, 8);
+  }
+
+  function isStopPhrase(s) {
+    const toks = String(s || "").toLowerCase().split(/\s+/).filter(Boolean);
+    if (!toks.length) return true;
+    // all tokens are stopwords / franchise scaffolding with no distinguishing word
+    return toks.every((t) => STOPWORDS.has(t));
+  }
+
+  // Series-aware extras beyond simple expansion (cod/mw, fifa→fc, etc.)
+  function expandUsefulForms(raw, base) {
+    const out = [];
+    const r = String(raw || "").toLowerCase();
+    const m = r.match(/\bmw\s*([0-9]+)\b/);
+    if (m) {
+      out.push("call of duty modern warfare " + m[1]);
+      out.push("modern warfare " + m[1]);
+    }
+    if (/\bcod\b/.test(r) && !m) {
+      out.push("call of duty modern warfare");
+      out.push("call of duty");
+    }
+    if (/\bfifa\b/.test(r)) {
+      out.push("ea sports fc " + r.replace(/\bfifa\b/gi, "").trim());
+      out.push("ea sports fc");
+    }
+    return out.filter(Boolean);
+  }
+
+  function priceFromText(text, regionKey) {
+    if (!text) return null;
+    const region = REGIONS[regionKey];
+    // Strip RTL/LTR marks and NBSP so "339.00 SAR\u200f" still parses
+    const clean = String(text)
+      .replace(/[‎‏‪-‮⁦-⁩ ]/g, " ")
+      .replace(/\s+/g, " ");
+    let current = null;
+    let original = null;
+
+    if (regionKey === "us") {
+      // Launch / Available are the product's own price — not catalog upsells
+      const launch = clean.match(/Launch price:\s*\$([0-9]+\.[0-9]{2})/i);
+      const available = clean.match(/Available for\s*\$([0-9]+\.[0-9]{2})/i);
+      // Discounted only when NOT the "Included … Plus" catalog row
+      const disc = clean.match(
+        /(?<!Included )\$([0-9]+\.[0-9]{2})\s*Discounted from original price of\s*\$([0-9]+\.[0-9]{2})/i
+      );
+      if (launch) {
+        current = parseFloat(launch[1]);
+      } else if (available) {
+        current = parseFloat(available[1]);
+      } else if (disc) {
+        current = parseFloat(disc[1]);
+        original = parseFloat(disc[2]);
+      } else {
+        // Prefer a $ amount on its own line / near end of product block
+        const lines = clean.split(/(?<=\.)\s+/);
+        const money = [...clean.matchAll(/(?:^|[\s(])\$([0-9]+\.[0-9]{2})/g)].map((m) =>
+          parseFloat(m[1])
+        );
+        // Drop tiny catalog teaser prices when a larger product price exists
+        if (money.length) {
+          current = money[0];
+          if (money.length > 1 && money[1] > money[0]) original = money[1];
+          // If first amount looks like a Plus-catalog discount (< launch-scale),
+          // prefer the Launch price embedded later in the page
+          const laterLaunch = clean.match(/Launch price:\s*\$([0-9]+\.[0-9]{2})/i);
+          if (laterLaunch) {
+            const lp = parseFloat(laterLaunch[1]);
+            if (lp >= current) {
+              original = current !== lp ? current : original;
+              current = lp;
+            }
+          }
+        }
+      }
+    } else {
+      // SA: "169.50 SAR مخصوم من السعر الأصلي البالغ 339.00 SAR"
+      const launch = clean.match(/سعر الإطلاق:\s*([0-9]+\.[0-9]{2})\s*SAR/i);
+      const disc = clean.match(
+        /([0-9]+\.[0-9]{2})\s*SAR\s*مخصوم[^0-9]*([0-9]+\.[0-9]{2})\s*SAR/i
+      );
+      const disc2 = clean.match(
+        /مخصوم من السعر الأصلي البالغ\s*([0-9]+\.[0-9]{2})\s*SAR/i
+      );
+      const all = [...clean.matchAll(/([0-9]+\.[0-9]{2})\s*SAR/g)].map((m) =>
+        parseFloat(m[1])
+      );
+      if (disc) {
+        current = parseFloat(disc[1]);
+        original = parseFloat(disc[2]);
+      } else if (launch) {
+        current = parseFloat(launch[1]);
+      } else if (all.length) {
+        current = all[0];
+        if (all.length > 1 && all[1] > all[0]) original = all[1];
+        else if (disc2) original = parseFloat(disc2[1]);
+      } else if (disc2) {
+        current = parseFloat(disc2[1]);
+      }
+    }
+
+    if (current == null || Number.isNaN(current)) return null;
+    if (current === 0) {
+      return {
+        available: true,
+        text: regionKey === "sa" ? "مجاني" : "Free",
+        value: 0,
+        currency: region.currency,
+        free: true,
+      };
+    }
+    const textOut =
+      regionKey === "sa" ? current.toFixed(2) + " SAR" : "$" + current.toFixed(2);
+    return {
+      available: true,
+      text: textOut,
+      value: current,
+      original,
+      currency: region.currency,
+    };
+  }
+
+  // API.SH price payload → page price shape
+  function priceFromApi(data, regionKey) {
+    if (!data || data.success === false) return null;
+    const p = data.price;
+    if (!p) return null;
+    const region = REGIONS[regionKey];
+    if (p.is_free || p.price === 0) {
+      return {
+        available: true,
+        text: regionKey === "sa" ? "مجاني" : "Free",
+        value: 0,
+        currency: region.currency,
+        free: true,
+      };
+    }
+    const value = typeof p.price === "number" ? p.price : null;
+    if (value == null || Number.isNaN(value)) return null;
+    let original = null;
+    if (typeof p.original_price === "number" && p.original_price > value) {
+      original = p.original_price;
+    }
+    const text =
+      regionKey === "sa" ? value.toFixed(2) + " SAR" : "$" + value.toFixed(2);
+    return {
+      available: true,
+      text,
+      value,
+      original,
+      currency: p.currency || region.currency,
+    };
+  }
+
+  function productIdFromUrl(storeUrl) {
+    try {
+      const u = new URL(storeUrl);
+      const m = u.pathname.match(/\/product\/([^/]+)/);
+      if (m) return decodeURIComponent(m[1]);
+      const c = u.pathname.match(/\/concept\/(\d+)/);
+      if (c) return c[1];
+    } catch (_) {}
+    return null;
+  }
+
+  async function fetchStorePagePrice(storeUrl, regionKey) {
+    if (!storeUrl) return null;
+    const cacheKey = regionKey + "|" + storeUrl;
+    if (priceCache.has(cacheKey)) return priceCache.get(cacheKey);
+
+    const id = productIdFromUrl(storeUrl);
+    if (!id) return null;
+    const region = regionKey === "sa" ? "ar-sa" : "en-us";
+
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 15000);
+      try {
+        const res = await fetch(
+          PROXY +
+            "/game?id=" +
+            encodeURIComponent(id) +
+            "&region=" +
+            encodeURIComponent(region),
+          { signal: ctrl.signal }
+        );
+        // 404 = game not found in that region — not a transport error
+        if (!res.ok && res.status !== 404) throw new Error("proxy " + res.status);
+        const data = await res.json();
+        const price = priceFromApi(data, regionKey);
+        // Cache hits only — do not cache failures (retry next open)
+        if (price) priceCache.set(cacheKey, price);
+        return price;
+      } finally {
+        clearTimeout(timer);
+      }
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // Product types we keep as "games / editions" (not DLC junk)
+  function productKind(item) {
+    const type = item.game_contentType || "";
+    const keys = (item.gameContentTypesList || []).map((x) => x.key || "").join(",");
+    const name = String(item.name || "");
+    const blob = (type + " " + keys).toLowerCase();
+    const nameL = name.toLowerCase();
+    // Videos/trailers — "Game Video" contains the word "game" and was kept as a game
+    if (/video|trailer|gameplay|cinematic|spot|announce/i.test(type) ||
+        /game_?video|trailer|video/i.test(keys) ||
+        /\btrailer\b|gameplay video|tv spot|official trailer|announce trailer/i.test(nameL)) {
+      return "junk";
+    }
+    // Name-based junk signals (SA/US type labels vary)
+    if (/demo|تجريبي|costume|زي\b|theme|avatar|-backpack|wallpaper|preview|trial/i.test(nameL) ||
+        /demo|costume|theme|avatar|music|track|weapon|character|level|expansion|add-?on|item|wallpaper|preview|trial/.test(blob)) {
+      // upgrades are useful, not junk
+      if (/upgrade|ترقية/i.test(nameL) || /upgrade/i.test(blob)) return "other";
+      return "junk";
+    }
+    if (/bundle|deluxe|premium|ultimate|goty|definitive|complete|collection|digital/i.test(blob) ||
+        /deluxe|premium|ultimate|bundle|complete|digital edition|الإصدار/i.test(nameL)) {
+      return "edition";
+    }
+    if (/full game|psn game|ps4 full|ps5 full|game/.test(blob) || /لعبة كاملة/i.test(nameL)) {
+      return "game";
+    }
+    // empty type but looks like a main title (no DLC words)
+    if (!blob.trim() && !/pack|packs|suit|costume|skin/i.test(nameL)) {
+      return "game";
+    }
+    return "other";
+  }
+
+  function isKeepable(item, query) {
+    const kind = productKind(item);
+    const score = relevanceScore(item.name || "", query);
+
+    if (kind === "junk") {
+      // only keep if the query IS basically this exact product
+      return score >= 0.99;
+    }
+    if (kind === "other") {
+      // upgrades / odd types: only on strong name match
+      return score >= 0.85;
+    }
+
+    // Games & editions: must match the query meaningfully
+    // (don't surface every random PS5 title just because the API returned it)
+    if (score < 0.55) return false;
+
+    const plats = item.playable_platform || [];
+    const hasPs5 = plats.some((p) => String(p).toLowerCase().includes("ps5"));
+    if (hasPs5) return true;
+    // PS4/PS3 etc. only if the name is a near-hit for the query
+    return score >= 0.8;
+  }
+
+  // 0..1 how well a product name matches the typed query
+  function relevanceScore(name, query) {
+    // Compare against original AND expanded forms (gta 6 ≈ grand theft auto vi)
+    const forms = [normName(query), normName(expandQuery(query)), normName(romanToDigit(expandQuery(query)))];
+    // Also try digit form of the name: "… VI" → "… 6"
+    const A0 = normName(name);
+    const A0d = romanToDigit(A0);
+    let best = 0;
+    for (const B of forms) {
+      if (!A0 || !B) continue;
+      best = Math.max(best, scorePair(A0, B), scorePair(A0d, B), scorePair(A0, romanToDigit(B)));
+      if (best >= 1) break;
+    }
+    return best;
+  }
+
+  function scorePair(A, B) {
+    if (!A || !B) return 0;
+    if (A === B) return 1;
+    if (A.startsWith(B)) return 0.97;
+    if (B.startsWith(A) && A.length >= 4) return 0.9;
+    if (A.includes(B)) return 0.9;
+    // "spiderman" vs normalized "spider man" (hyphen → space)
+    const An = A.replace(/\s+/g, "");
+    const Bn = B.replace(/\s+/g, "");
+    if (An === Bn) return 0.95;
+    if (An.includes(Bn) || Bn.includes(An)) return 0.9;
+
+    const ta = A.split(" ");
+    const tb = B.split(" ");
+    const tset = new Set(ta);
+    let hit = 0;
+    tb.forEach((t) => { if (tset.has(t)) hit++; });
+    const coverage = tb.length ? hit / tb.length : 0;
+
+    let nameCov = 0;
+    if (tb.length && ta.length) {
+      let hit2 = 0;
+      const tbset = new Set(tb);
+      ta.forEach((t) => { if (tbset.has(t)) hit2++; });
+      nameCov = hit2 / ta.length;
+    }
+
+    if (coverage < 0.75) return Math.max(coverage * 0.4, nameCov * 0.5 * coverage);
+    if (coverage >= 1 && nameCov >= 0.5) return 0.85;
+    if (coverage >= 0.75 && nameCov >= 0.4) return 0.7;
+    return 0.45 + coverage * 0.2;
+  }
+
+  // Direct product page for a regional SKU. Never a search URL — a search
+  // page is not the game. Cross-region IDs open an empty shell, so the id
+  // must come from that region's own catalog.
+  function productUrl(regionKey, id) {
+    const rid = String(id || "").trim();
+    if (!rid || !rid.includes("_00-")) return null;
+    const locale = (REGIONS[regionKey] && REGIONS[regionKey].locale) || "";
+    if (!locale) return null;
+    // Reject SKUs the store renders as an empty PlayStation shell
+    if (!isOpenableProductId(rid)) return null;
+    return "https://store.playstation.com/" + locale + "/product/" + rid;
+  }
+
+  // Legacy / disc-only / media ids 404 to an empty SPA page.
+  function isOpenableProductId(id) {
+    const s = String(id || "");
+    if (!s || !s.includes("_00-")) return false;
+    // Legacy media ids sit after a publisher prefix: UP1004-NPUB…, not at ^.
+    if (
+      /(?:^|-)(NPUB|NPUA|NPEA|NPEB|NPEL|NPEC|NPJA|NPKA|NPUZ|BLUS|BLES|BCES|BCUS|BCZS|PCSE|PCSA|DEMO)/.test(
+        s
+      )
+    ) {
+      return false;
+    }
+    if (/(DISCONLY|GAMEVIDEO|DYNAMICTHEME|AVATAR|TRAILER|VIDEOPS)/i.test(s)) {
+      return false;
+    }
+    return true;
+  }
+
+  function sideProductUrl(side, regionKey) {
+    if (!side) return null;
+    if (side.id) {
+      const u = productUrl(regionKey, side.id);
+      if (u) return u;
+    }
+    // Only trust a stored URL that is already a product page for this locale
+    const loc = (REGIONS[regionKey] && REGIONS[regionKey].locale) || "";
+    const u = String(side.storeUrl || "");
+    if (u.includes("/product/") && u.includes("/" + loc + "/")) return u;
+    return null;
+  }
+
+  function pickImage(item) {
+    const imgs = item.images || [];
+    const byType = (t) => imgs.find((i) => i.type === t);
+    return (
+      (byType(10) || byType(12) || byType(13) || byType(1) || imgs[0] || {}).url || ""
+    );
+  }
+
+  function parsePrice(item, regionKey) {
+    const sku = item.default_sku || {};
+    const raw = sku.display_price;
+    const minor = typeof sku.price === "number" ? sku.price : null;
+    const region = REGIONS[regionKey];
+
+    if (raw == null && minor == null) {
+      return { available: false, text: null, value: null, currency: region.currency };
+    }
+
+    // "Free" / "مجاني"
+    if (minor === 0 || /^free$/i.test(String(raw || "").trim()) || raw === "مجاني") {
+      return { available: true, text: regionKey === "sa" ? "مجاني" : "Free", value: 0, currency: region.currency, free: true };
+    }
+
+    let value = null;
+    if (minor != null) {
+      value = minor / 100;
+    } else {
+      const m = String(raw).replace(/[^0-9.,]/g, "").replace(/,/g, "");
+      const n = parseFloat(m);
+      if (!Number.isNaN(n)) value = n;
+    }
+
+    const text = String(raw || (value != null ? formatMoney(value, regionKey) : "")).replace(/\u00a0/g, " ").trim();
+    return {
+      available: value != null,
+      text: text || (value != null ? formatMoney(value, regionKey) : null),
+      value,
+      currency: region.currency,
+    };
+  }
+
+  function formatMoney(n, regionKey) {
+    if (n == null) return "—";
+    const opts =
+      regionKey === "sa"
+        ? { style: "currency", currency: "SAR", currencyDisplay: "narrowSymbol" }
+        : { style: "currency", currency: "USD" };
+    try {
+      return new Intl.NumberFormat("en-US", opts).format(n);
+    } catch {
+      return regionKey === "sa" ? n.toFixed(2) + " SAR" : "$" + n.toFixed(2);
+    }
+  }
+
+  async function fetchJson(url, token, kind) {
+    // kind: "search" | "ac" | null — pass token=null to opt out of staleness
+    // Timeout so a hung upstream cannot pin loadingKeys forever.
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 12000);
+    try {
+      const res = await fetch(url, {
+        headers: { Accept: "application/json" },
+        signal: ctrl.signal,
+      });
+      if (token != null) {
+        const cur = kind === "ac" ? acToken : searchToken;
+        if (token !== cur) throw new Error("stale");
+      }
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return await res.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async function searchRegion(regionKey, query, token, scoreQuery, kind) {
+    const r = REGIONS[regionKey];
+    // Score against the user's original query (not the API variant)
+    const forQuery = scoreQuery || query;
+    const url =
+      CHIHIRO +
+      "/search/" +
+      r.cc +
+      "/" +
+      r.lang +
+      "/999/" +
+      encodeURIComponent(query) +
+      "?start=0&size=100";
+    // token=null → price resolution never throws "stale"
+    const data = await fetchJson(url, token, kind);
+    // ALWAYS judge keep/rank against the user's original query — never the
+    // short API variant (otherwise "astro" keeps every Astro* game).
+    const items = (data.links || [])
+      .filter((item) => isKeepable(item, forQuery))
+      .filter((item) => isOpenableProductId(item.id))
+      .map((item) => {
+        const price = parsePrice(item, regionKey);
+        const storeUrl = productUrl(regionKey, item.id) || "";
+        const kind = productKind(item);
+        const plats = item.playable_platform || [];
+        const hasPs5 = plats.some((p) => String(p).toLowerCase().includes("ps5"));
+        const score = relevanceScore(item.name || "", forQuery);
+        return {
+          region: regionKey,
+          id: item.id,
+          name: item.name || item.short_name || "",
+          image: pickImage(item),
+          price,
+          platforms: plats,
+          hasPs5,
+          kind,
+          type: item.game_contentType || "",
+          release: item.release_date || null,
+          score,
+          storeUrl,
+        };
+      });
+
+    // Deduplicate: same title keeps the priced / higher-scoring row
+    const seen = new Map();
+    for (const it of items) {
+      const key = normName(it.name) + "|" + (it.hasPs5 ? "ps5" : "other");
+      const prev = seen.get(key);
+      if (!prev) seen.set(key, it);
+      else if (!prev.price.available && it.price.available) seen.set(key, it);
+      else if (prev.score < it.score) seen.set(key, it);
+      else if (prev.score === it.score && it.kind === "game" && prev.kind !== "game") {
+        seen.set(key, it);
+      }
+    }
+
+    return [...seen.values()].sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (b.hasPs5 !== a.hasPs5) return b.hasPs5 ? 1 : -1;
+      const kindRank = (k) => (k === "game" ? 0 : k === "edition" ? 1 : 2);
+      if (kindRank(a.kind) !== kindRank(b.kind)) return kindRank(a.kind) - kindRank(b.kind);
+      // both editions: still show every distinct name
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  // Merge multiple variant searches for one region, keep best row per title
+  function mergeVariantLists(lists) {
+    const seen = new Map();
+    for (const list of lists) {
+      for (const it of list) {
+        const key = it.id || normName(it.name) + "|" + (it.hasPs5 ? "ps5" : "other");
+        const prev = seen.get(key);
+        if (!prev) seen.set(key, it);
+        else if (!prev.price.available && it.price.available) seen.set(key, it);
+        else if (prev.score < it.score) seen.set(key, it);
+      }
+    }
+    return [...seen.values()].sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (b.hasPs5 !== a.hasPs5) return b.hasPs5 ? 1 : -1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  function similarity(a, b) {
+    const A = normName(a);
+    const B = normName(b);
+    if (!A || !B) return 0;
+    if (A === B) return 1;
+
+    const ta = new Set(A.split(" "));
+    const tb = new Set(B.split(" "));
+    let inter = 0;
+    ta.forEach((t) => { if (tb.has(t)) inter++; });
+    const uni = ta.size + tb.size - inter;
+    const jaccard = uni ? inter / uni : 0;
+    const contain = A.includes(B) || B.includes(A) ? 0.2 : 0;
+
+    // Distinguishing tokens: numbers and edition markers must not conflict
+    const numsA = (A.match(/\b\d+\b/g) || []).join(",");
+    const numsB = (B.match(/\b\d+\b/g) || []).join(",");
+    if (numsA !== numsB) return 0;
+
+    const edition = /\b(remastered|deluxe|premium|ultimate|complete|goty|definitive|collection|digital)\b/;
+    const edA = A.match(edition);
+    const edB = B.match(edition);
+    if (edA && edB && edA[0] !== edB[0]) return 0;
+    // Base vs a real edition (deluxe/ultimate/…) never match by containment.
+    // Localized SA titles often drop the English edition word — product ID
+    // matching handles those; this only stops base↔ultimate mix-ups.
+    if (edA && !edB && !/\bdigital\b/.test(A)) return 0;
+    if (edB && !edA && !/\bdigital\b/.test(B)) return 0;
+
+    return Math.min(1, jaccard + contain);
+  }
+
+  // Hard edition identity from name + product id (covers Arabic SA titles).
+  function editionTag(name, id) {
+    const blob = (String(name || "") + " " + String(id || "")).toLowerCase();
+    if (/ultimate|الإصدار المُطلق|الاصدار المطلق|المُطلق|المطلق/.test(blob)) return "ultimate";
+    if (/\bdeluxe\b/.test(blob)) return "deluxe";
+    if (/\bpremium\b/.test(blob)) return "premium";
+    if (/\bgoty\b|game of the year/.test(blob)) return "goty";
+    if (/\bdefinitive\b/.test(blob)) return "definitive";
+    if (/\bcomplete\b/.test(blob)) return "complete";
+    if (/\bcollection\b/.test(blob)) return "collection";
+    if (/\bremastered\b/.test(blob)) return "remastered";
+    if (/\bdigital\b/.test(blob)) return "digital";
+    return "";
+  }
+
+  // Concept code after "_00-" in a chihiro id: GTAVIULTIMATE001 vs GTAVISTANDARD001
+  function conceptCode(id) {
+    const m = String(id || "").match(/_00-(.+)$/);
+    return m ? m[1] : "";
+  }
+
+  // Pick the correct product for the other store: same id first, then exact
+  // name, then same hard edition + similarity. Never base↔ultimate.
+  function priceHasValue(p) {
+    return !!(p && p.available && (p.value != null || p.text));
+  }
+
+  function pickProductForTarget(list, targetName, preferId) {
+    if (!list || !list.length) return null;
+
+    const tEd = editionTag(targetName, preferId);
+    const editionOk = (it) => {
+      const iEd = editionTag(it.name, it.id);
+      if (tEd || iEd) {
+        if (tEd && iEd && tEd !== iEd) return false;
+        if (tEd && !iEd && tEd !== "digital") return false;
+        if (iEd && !tEd && iEd !== "digital") return false;
+      }
+      return true;
+    };
+
+    // Prefer openable SKUs; among concept hits prefer a live price, then
+    // PPSA (current store products) over older CUSA rows that often 404.
+    const candidates = list.filter(
+      (x) => editionOk(x) && isOpenableProductId(x.id)
+    );
+    if (!candidates.length) return null;
+    const pc = preferId ? conceptCode(preferId) : "";
+    const rank = (a, b) => {
+      const ap = priceHasValue(a.price) ? 1 : 0;
+      const bp = priceHasValue(b.price) ? 1 : 0;
+      if (ap !== bp) return bp - ap;
+      const aP = /-PPSA/.test(a.id) ? 1 : 0;
+      const bP = /-PPSA/.test(b.id) ? 1 : 0;
+      if (aP !== bP) return bP - aP;
+      return 0;
+    };
+
+    if (preferId) {
+      const byId = candidates.find((x) => x.id === preferId);
+      if (byId && priceHasValue(byId.price)) return byId;
+      if (pc) {
+        const conceptHits = candidates
+          .filter((x) => conceptCode(x.id) === pc)
+          .sort(rank);
+        if (conceptHits.length) return conceptHits[0];
+      }
+      if (byId) return byId;
+    }
+
+    const tn = normName(targetName);
+    if (tn) {
+      const byName = candidates
+        .filter((x) => normName(x.name) === tn)
+        .sort(rank);
+      if (byName.length) return byName[0];
+    }
+
+    let best = null;
+    let bestScore = 0;
+    for (const it of candidates) {
+      let s = 0;
+      if (pc && conceptCode(it.id) === pc) {
+        s = 1;
+      } else if (tn && normName(it.name) === tn) {
+        s = 0.99;
+      } else {
+        s = similarity(targetName, it.name);
+      }
+      if (priceHasValue(it.price)) s += 0.05;
+      if (/ -PPSA/.test(it.id) || it.id.includes("-PPSA")) s += 0.02;
+      if (s > bestScore || (s === bestScore && best && rank(it, best) < 0)) {
+        bestScore = Math.max(bestScore, s);
+        best = it;
+      }
+    }
+    if (best && bestScore >= 0.55) return best;
+    if (tn) {
+      const byName = candidates
+        .filter((x) => normName(x.name) === tn)
+        .sort(rank);
+      if (byName.length) return byName[0];
+    }
+    return null;
+  }
+
+  function sideIdsMatch(a, b) {
+    if (!a || !b) return false;
+    // Hard edition conflict never matches (base vs ultimate/remastered/…)
+    const ea = editionTag(a.name, a.id);
+    const eb = editionTag(b.name, b.id);
+    if (ea && eb && ea !== eb) return false;
+    if (ea && !eb && ea !== "digital") return false;
+    if (eb && !ea && eb !== "digital") return false;
+
+    if (a.id && b.id && a.id === b.id) return true;
+    const ca = conceptCode(a.id);
+    const cb = conceptCode(b.id);
+    if (ca && cb && ca === cb) return true;
+    // Same normalized title is enough for regional SKUs with different ids
+    const na = normName(a.name);
+    const nb = normName(b.name);
+    if (na && nb && na === nb) return true;
+    return false;
+  }
+
+  function sideNeedsReplace(entry, regionKey, candidate) {
+    const cur = regionKey === "sa" ? entry.sa : entry.us;
+    const other = regionKey === "sa" ? entry.us : entry.sa;
+    if (!candidate) return false;
+    if (!cur) return true;
+    // Only replace on a real edition clash — different regional product ids
+    // for the same title are normal and must not thrash the side.
+    if (other) {
+      const tEd = editionTag(other.name, other.id);
+      const cEd = editionTag(cur.name, cur.id);
+      if (tEd && cEd && tEd !== cEd) return true;
+      if (tEd && !cEd && tEd !== "digital") return true;
+      if (cEd && !tEd && cEd !== "digital") return true;
+      // Wrong game entirely (both tagged, different hard games) — same as above
+      if (!sideIdsMatch(cur, other)) {
+        const pc = conceptCode(other.id);
+        const cc = conceptCode(cur.id);
+        // Only force rematch when concepts disagree AND names disagree
+        if (pc && cc && pc !== cc) {
+          const na = normName(cur.name);
+          const nb = normName(other.name);
+          if (na && nb && na !== nb && !na.includes(nb) && !nb.includes(na)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  function mergeRegions(saList, usList) {
+    const usedSa = new Set();
+    const merged = [];
+
+    // Index SA by normalized name for exact edition matching
+    const saByName = new Map();
+    for (const sa of saList) {
+      const k = normName(sa.name);
+      if (!saByName.has(k)) saByName.set(k, []);
+      saByName.get(k).push(sa);
+    }
+
+    const pickSa = (usName) => {
+      const exact = saByName.get(normName(usName));
+      if (exact && exact.length) {
+        const hit = exact.find((x) => !usedSa.has(x.id)) || exact[0];
+        return hit;
+      }
+      let best = null;
+      let bestScore = 0;
+      for (const sa of saList) {
+        if (usedSa.has(sa.id)) continue;
+        const s = similarity(usName, sa.name);
+        if (s > bestScore) {
+          bestScore = s;
+          best = sa;
+        }
+      }
+      if (best && bestScore >= 0.55) return best;
+      return null;
+    };
+
+    for (const us of usList) {
+      const best = pickSa(us.name);
+      if (best) usedSa.add(best.id);
+      merged.push({
+        key: us.id,
+        name: us.name,
+        nameSa: best && best.name !== us.name ? best.name : null,
+        image: us.image || (best && best.image) || "",
+        score: us.score || 0,
+        kind: us.kind || "game",
+        hasPs5: us.hasPs5 !== false,
+        us,
+        sa: best || null,
+      });
+    }
+
+    for (const sa of saList) {
+      if (usedSa.has(sa.id)) continue;
+      // skip if an entry already carries this name (same edition matched differently)
+      const k = normName(sa.name);
+      if (merged.some((m) => normName(m.name) === k && m.us)) continue;
+      merged.push({
+        key: "sa:" + sa.id,
+        name: sa.name,
+        nameSa: null,
+        image: sa.image,
+        score: sa.score || 0,
+        kind: sa.kind || "game",
+        hasPs5: sa.hasPs5 !== false,
+        us: null,
+        sa,
+      });
+    }
+
+    // Rank: strong query match first, both regions, then PS5, then standard edition
+    merged.sort((a, b) => {
+      if ((b.score || 0) !== (a.score || 0)) return (b.score || 0) - (a.score || 0);
+      const both = (b.sa && b.us ? 1 : 0) - (a.sa && a.us ? 1 : 0);
+      if (both !== 0) return both;
+      if (b.hasPs5 !== a.hasPs5) return b.hasPs5 ? 1 : -1;
+      const kindRank = (k) => (k === "game" ? 0 : k === "edition" ? 1 : 2);
+      if (kindRank(a.kind) !== kindRank(b.kind)) return kindRank(a.kind) - kindRank(b.kind);
+      return a.name.localeCompare(b.name);
+    });
+
+    return merged;
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function entryKey(entry) {
+    if (!entry) return "";
+    if (entry.key) return String(entry.key);
+    if (entry.us && entry.us.id) return String(entry.us.id);
+    if (entry.sa && entry.sa.id) return "sa:" + entry.sa.id;
+    return normName(entry.name || "");
+  }
+
+  // Autocomplete/searchRegion hands a bare side ({region,id,name,price,…});
+  // search results hand {key,us,sa}. Normalize both to one card shape.
+  function normalizeEntry(entry) {
+    if (!entry) return null;
+    let us = entry.us || null;
+    let sa = entry.sa || null;
+    if (!us && !sa && entry.region && entry.id) {
+      if (entry.region === "us") us = entry;
+      else if (entry.region === "sa") sa = entry;
+    }
+    const name =
+      entry.name || (us && us.name) || (sa && sa.name) || "";
+    let key = entry.key || "";
+    if (!key) {
+      if (us && us.id) key = String(us.id);
+      else if (sa && sa.id) key = "sa:" + sa.id;
+      else key = normName(name);
+    }
+    return {
+      key: String(key),
+      name,
+      nameSa: entry.nameSa || null,
+      image: entry.image || (us && us.image) || (sa && sa.image) || "",
+      score: entry.score || 0,
+      kind: entry.kind || (us && us.kind) || (sa && sa.kind) || "game",
+      hasPs5:
+        entry.hasPs5 !== undefined
+          ? entry.hasPs5
+          : (us && us.hasPs5 !== undefined ? us.hasPs5 : (sa && sa.hasPs5) || true),
+      us,
+      sa,
+    };
+  }
+
+  function sideHasPrice(side) {
+    return !!(side && side.price && side.price.available);
+  }
+
+  // Keep the better of two sides for the same product slot — never drop a
+  // priced side for an unpriced one, never leave a fresher storeUrl behind.
+  function mergeSide(prev, next) {
+    if (!next) return prev || null;
+    if (!prev) return next;
+    // Prefer whichever has a live price; if neither, keep identity + links.
+    if (sideHasPrice(next) && sideHasPrice(prev)) return next;
+    if (sideHasPrice(next)) {
+      const out = { ...next };
+      if (!out.storeUrl && prev.storeUrl) out.storeUrl = prev.storeUrl;
+      if (!out.image && prev.image) out.image = prev.image;
+      return out;
+    }
+    if (sideHasPrice(prev)) {
+      const out = { ...prev };
+      if (!out.storeUrl && next.storeUrl) out.storeUrl = next.storeUrl;
+      if (!out.image && next.image) out.image = next.image;
+      if (!out.name && next.name) out.name = next.name;
+      if (out.id == null && next.id != null) out.id = next.id;
+      return out;
+    }
+    // Both unpriced: keep whichever has an openable id / store link
+    const out = { ...next };
+    if ((!out.id || !isOpenableProductId(out.id)) && prev.id && isOpenableProductId(prev.id)) {
+      out.id = prev.id;
+      out.region = prev.region || out.region;
+      out.name = out.name || prev.name;
+    }
+    if (!out.storeUrl && prev.storeUrl) out.storeUrl = prev.storeUrl;
+    if (!out.image && prev.image) out.image = prev.image;
+    if (!out.name && prev.name) out.name = prev.name;
+    return out;
+  }
+
+  function serializeSide(side) {
+    if (!side) return null;
+    return {
+      region: side.region,
+      id: side.id,
+      name: side.name,
+      image: side.image || "",
+      price: side.price
+        ? {
+            available: !!side.price.available,
+            text: side.price.text,
+            value: side.price.value,
+            currency: side.price.currency,
+            free: !!side.price.free,
+            original: side.price.original,
+          }
+        : null,
+      platforms: side.platforms || [],
+      hasPs5: side.hasPs5 !== false,
+      kind: side.kind || "game",
+      type: side.type || "",
+      release: side.release || null,
+      score: side.score || 0,
+      storeUrl: side.storeUrl || "",
+    };
+  }
+
+  function serializeEntry(entry) {
+    if (!entry) return null;
+    return {
+      key: entryKey(entry),
+      name: entry.name,
+      nameSa: entry.nameSa || null,
+      image: entry.image || "",
+      score: entry.score || 0,
+      kind: entry.kind || "game",
+      hasPs5: entry.hasPs5 !== false,
+      us: serializeSide(entry.us),
+      sa: serializeSide(entry.sa),
+      savedAt: Date.now(),
+    };
+  }
+
+  function deserializeEntry(data) {
+    if (!data || !data.name) return null;
+    return normalizeEntry({
+      key: data.key || "",
+      name: data.name,
+      nameSa: data.nameSa || null,
+      image: data.image || "",
+      score: data.score || 0,
+      kind: data.kind || "game",
+      hasPs5: data.hasPs5 !== false,
+      us: data.us || null,
+      sa: data.sa || null,
+    });
+  }
+
+  function loadSaved() {
+    try {
+      const raw = localStorage.getItem(SAVED_KEY);
+      saved = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(saved)) saved = [];
+      if (!saved.length) {
+        for (const oldKey of ["psn_saved_games_v2", "psn_saved_games_v1"]) {
+          const old = localStorage.getItem(oldKey);
+          if (!old) continue;
+          const arr = JSON.parse(old);
+          if (Array.isArray(arr) && arr.length) {
+            saved = arr;
+            break;
+          }
+        }
+      }
+      // Drop only true edition clashes (ultimate US + base SA). Different
+      // regional ids / concept codes for the same title are normal.
+      let dirty = false;
+      saved = saved.map((data) => {
+        if (!data || !data.us || !data.sa) return data;
+        if (sideIdsMatch(data.us, data.sa)) return data;
+        const tEd = editionTag(data.us.name, data.us.id);
+        const cEd = editionTag(data.sa.name, data.sa.id);
+        const bad =
+          (tEd && cEd && tEd !== cEd) ||
+          (tEd && !cEd && tEd !== "digital") ||
+          (cEd && !tEd && cEd !== "digital");
+        if (!bad) return data;
+        dirty = true;
+        return { ...data, sa: null };
+      });
+      if (dirty) persistSaved();
+    } catch (_) {
+      saved = [];
+    }
+  }
+
+  function persistSaved() {
+    try {
+      localStorage.setItem(SAVED_KEY, JSON.stringify(saved.slice(0, 30)));
+    } catch (_) { /* ignore quota */ }
+  }
+
+  function saveEntry(entry) {
+    const norm = normalizeEntry(entry);
+    if (!norm) return;
+    const data = serializeEntry(norm);
+    const k = data.key || normName(data.name);
+    data.key = k;
+    // Match by stable key, or by either product id (guards re-key races)
+    const idx = saved.findIndex((s) => {
+      const sk = s.key || normName(s.name || "");
+      if (sk === k) return true;
+      if (data.us && s.us && s.us.id && s.us.id === data.us.id) return true;
+      if (data.sa && s.sa && s.sa.id && s.sa.id === data.sa.id) return true;
+      return false;
+    });
+    if (idx >= 0) {
+      const prev = saved[idx];
+      if (data.image) prev.image = data.image;
+      if (data.name) prev.name = data.name;
+      prev.nameSa = data.nameSa || prev.nameSa;
+      // Always merge sides — not only when a price is already available
+      prev.us = mergeSide(prev.us, data.us);
+      prev.sa = mergeSide(prev.sa, data.sa);
+      // Keep one stable key (prefer explicit id key over name key)
+      if (prev.key !== k && data.us && data.us.id) {
+        // leave prev.key if it was an id; only fill if missing
+        if (!prev.key) prev.key = data.us.id;
+      } else if (!prev.key) {
+        prev.key = k;
+      }
+      saved.splice(idx, 1);
+      saved.unshift(prev);
+    } else {
+      saved.unshift(data);
+    }
+    persistSaved();
+    renderSaved();
+  }
+
+  function removeSaved(key) {
+    const k = String(key || "");
+    loadingKeys.delete(k);
+    saved = saved.filter((s) => (s.key || normName(s.name || "")) !== k);
+    persistSaved();
+    renderSaved();
+    if (!saved.length) restoreResults();
+  }
+
+  function gameCardHtml(data, pricesReady) {
+    const saPrice = data.sa && data.sa.price && data.sa.price.available ? data.sa.price : null;
+    const usPrice = data.us && data.us.price && data.us.price.available ? data.us.price : null;
+    const key = escapeHtml(data.key || normName(data.name || ""));
+    const name = escapeHtml(data.name || "");
+    const sub = "PS5";
+
+    const usAmountLine = usPrice
+      ? `<div class="amount-row">
+          <div class="amount">${escapeHtml(usPrice.text || formatMoney(usPrice.value, "us"))}</div>
+          <div class="conv" data-conv="${key}">${
+            usPrice.value != null ? `<span class="fx">…</span>` : ""
+          }</div>
+        </div>`
+      : `<div class="amount-row"><div class="amount">${pricesReady ? "—" : "…"}</div></div>`;
+
+    const saUrl = sideProductUrl(data.sa, "sa");
+    const usUrl = sideProductUrl(data.us, "us");
+    // Product pages only — never a search URL (that is not the game).
+    const saLink = saUrl
+      ? `<a href="${escapeHtml(saUrl)}" target="_blank" rel="noopener">SA ↗</a>`
+      : "";
+    const usLink = usUrl
+      ? `<a href="${escapeHtml(usUrl)}" target="_blank" rel="noopener">US ↗</a>`
+      : "";
+
+    const saCard = saPrice
+      ? `<div class="price-card sa">
+          <div class="label">🇸🇦 SA</div>
+          <div class="amount-row"><div class="amount">${escapeHtml(saPrice.text)}</div></div>
+          ${
+            saPrice.original && saPrice.original > saPrice.value
+              ? `<div class="note">was ${escapeHtml(formatMoney(saPrice.original, "sa"))}</div>`
+              : ""
+          }
+          ${saLink}
+        </div>`
+      : `<div class="price-card sa">
+          <div class="label">🇸🇦 SA</div>
+          <div class="amount-row"><div class="amount">${pricesReady ? "—" : "…"}</div></div>
+          ${saLink}
+        </div>`;
+
+    const usCard = usPrice
+      ? `<div class="price-card us">
+          <div class="label">🇺🇸 US</div>
+          ${usAmountLine}
+          ${
+            usPrice.original && usPrice.original > usPrice.value
+              ? `<div class="note">was $${usPrice.original.toFixed(2)}</div>`
+              : ""
+          }
+          ${usLink}
+        </div>`
+      : `<div class="price-card us">
+          <div class="label">🇺🇸 US</div>
+          <div class="amount-row"><div class="amount">${pricesReady ? "—" : "…"}</div></div>
+          ${usLink}
+        </div>`;
+
+    const loading =
+      !pricesReady && (!saPrice || !usPrice)
+        ? `<div class="convert"><span class="spin"></span></div>`
+        : "";
+
+    return `
+      <li class="game-card${pricesReady ? "" : " loading"}" data-key="${key}">
+        <button type="button" class="del" aria-label="Remove ${name}" title="Remove">×</button>
+        <div class="detail-head">
+          ${data.image ? `<img src="${escapeHtml(data.image)}" alt="" loading="lazy" />` : ""}
+          <div style="min-width:0">
+            <h2>${name}</h2>
+            <div class="sub">${sub}</div>
+          </div>
+        </div>
+        <div class="price-grid">
+          ${saCard}
+          ${usCard}
+        </div>
+        ${loading}
+      </li>
+    `;
+  }
+
+  function fillConv(card, data) {
+    const us = data.us && data.us.price && data.us.price.available ? data.us.price : null;
+    if (!us || us.value == null) return;
+    const key = data.key || normName(data.name || "");
+    const target = card.querySelector('[data-conv="' + CSS.escape(key) + '"]');
+    if (!target) return;
+    (async () => {
+      try {
+        const f = await ensureFx();
+        const t2 = card.querySelector('[data-conv="' + CSS.escape(key) + '"]');
+        if (!t2) return;
+        const converted = us.value * f.rate;
+        const fxNote = f.rate.toFixed(2) + " SAR/USD";
+        t2.innerHTML =
+          escapeHtml(formatMoney(converted, "sa")) +
+          `<span class="fx">${escapeHtml(formatMoney(us.value, "us"))} × ${fxNote}</span>`;
+      } catch (_) { /* keep … */ }
+    })();
+  }
+
+  function isCardLoading(key) {
+    return loadingKeys.has(String(key || ""));
+  }
+
+  function renderSaved() {
+    if (!saved.length) {
+      savedEl.innerHTML = "";
+      return;
+    }
+    savedEl.innerHTML = "";
+    const frag = document.createDocumentFragment();
+    for (const data of saved) {
+      const k = data.key || normName(data.name || "");
+      const ready = !isCardLoading(k);
+      const wrap = document.createElement("div");
+      wrap.innerHTML = gameCardHtml(data, ready);
+      const li = wrap.firstElementChild;
+      li.querySelector(".del").addEventListener("click", () => {
+        removeSaved(k);
+      });
+      fillConv(li, data);
+      frag.appendChild(li);
+    }
+    savedEl.appendChild(frag);
+  }
+
+  // Re-fetch missing prices for restored cards
+  async function refreshSavedPrices() {
+    if (!saved.length) return;
+    // Do NOT bump searchToken here — that aborted mid-resolve and dropped
+    // the only US price fill before persist ever ran.
+    for (let i = 0; i < saved.length; i++) {
+      const data = saved[i];
+      const needUs = !(data.us && data.us.price && data.us.price.available);
+      const needSa = !(data.sa && data.sa.price && data.sa.price.available);
+      if (!needUs && !needSa) continue;
+      try {
+        const entry = deserializeEntry(data);
+        if (!entry) continue;
+        const k = data.key || entryKey(entry) || normName(data.name || "");
+        loadingKeys.add(k);
+        renderSaved();
+        await resolveEntryPrices(entry);
+        const merged = serializeEntry(entry);
+        saved[i] = {
+          ...data,
+          ...merged,
+          key: data.key || merged.key || k,
+          us: mergeSide(data.us, merged.us),
+          sa: mergeSide(data.sa, merged.sa),
+        };
+        // Persist each card as soon as it resolves — a later failure or
+        // navigation must not throw away a price we already fetched.
+        persistSaved();
+        renderSaved();
+        loadingKeys.delete(k);
+      } catch (_) {
+        loadingKeys.delete(data.key || normName(data.name || ""));
+      }
+    }
+    persistSaved();
+    renderSaved();
+    beaconSaved("refresh-done");
+  }
+
+  function beaconSaved(phase) {
+    try {
+      const summary = saved.map((s) => ({
+        k: s.key || "",
+        n: (s.name || "").slice(0, 40),
+        us: s.us
+          ? {
+              id: s.us.id || "",
+              p: s.us.price
+                ? {
+                    a: !!s.us.price.available,
+                    t: s.us.price.text,
+                    v: s.us.price.value,
+                  }
+                : null,
+              u: !!sideProductUrl(s.us, "us"),
+            }
+          : null,
+        sa: s.sa
+          ? {
+              id: s.sa.id || "",
+              p: s.sa.price
+                ? {
+                    a: !!s.sa.price.available,
+                    t: s.sa.price.text,
+                    v: s.sa.price.value,
+                  }
+                : null,
+              u: !!sideProductUrl(s.sa, "sa"),
+            }
+          : null,
+      }));
+      fetch(PROXY + "/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phase, origin: location.origin, n: saved.length, cards: summary }),
+        keepalive: true,
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
+  function setResultsVisible(show) {
+    if (show) {
+      resultsHiddenForDetail = false;
+      resultsEl.hidden = false;
+      resultsEl.style.display = "";
+    } else {
+      resultsHiddenForDetail = true;
+      resultsEl.hidden = true;
+      resultsEl.style.display = "none";
+    }
+  }
+
+  function restoreResults() {
+    if (!lastResults.length) {
+      resultsEl.innerHTML = "";
+      resultsEl.hidden = false;
+      resultsEl.style.display = "";
+      resultsHiddenForDetail = false;
+      return;
+    }
+    setResultsVisible(true);
+    renderResults(lastResults, { keepList: true });
+  }
+
+  function renderResults(list, opts) {
+    const keepList = opts && opts.keepList;
+    if (!keepList) lastResults = list.slice();
+    if (!keepList) {
+      resultsEl.innerHTML = "";
+      if (!list.length) {
+        resultsEl.hidden = false;
+        resultsEl.style.display = "";
+        resultsHiddenForDetail = false;
+        resultsEl.innerHTML = "";
+        return;
+      }
+    }
+    if (!list.length) return;
+    resultsEl.hidden = false;
+    resultsEl.style.display = "";
+    resultsHiddenForDetail = false;
+    resultsEl.innerHTML = "";
+    const frag = document.createDocumentFragment();
+    for (const entry of list.slice(0, 40)) {
+      const li = document.createElement("li");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      const plat = entry.hasPs5 !== false ? "PS5" : "PS4";
+      const kindLabel = entry.kind === "edition" ? " · Ed." : "";
+      btn.innerHTML = `
+        <img src="${escapeHtml(entry.image || "")}" alt="" loading="lazy" />
+        <div style="min-width:0">
+          <div class="r-name">${escapeHtml(entry.name)}</div>
+          <div class="r-meta">${plat}${kindLabel}</div>
+        </div>
+      `;
+      btn.addEventListener("click", () => addGame(entry));
+      li.appendChild(btn);
+      frag.appendChild(li);
+    }
+    resultsEl.appendChild(frag);
+  }
+
+  function highlightMatch(text, query) {
+    const t = String(text || "");
+    const q = String(query || "").trim();
+    if (!q) return escapeHtml(t);
+    // Match on normalized form, map back via simple case-insensitive find
+    const nq = normName(q);
+    const nt = normName(t);
+    if (!nq || !nt) return escapeHtml(t);
+    // Find token span in original: approximate with first matching word sequence
+    const idx = nt.indexOf(nq);
+    if (idx < 0) {
+      // try first token only
+      const first = nq.split(" ")[0];
+      const i2 = nt.indexOf(first);
+      if (i2 < 0 || !first) return escapeHtml(t);
+      // crude: highlight first occurrence of first token letters in original
+      return highlightFirstToken(t, first);
+    }
+    // Map normalized index back roughly by walking original
+    const start = mapNormIndexToOriginal(t, idx);
+    const end = mapNormIndexToOriginal(t, idx + nq.length);
+    if (start == null || end == null || end <= start) return escapeHtml(t);
+    return (
+      escapeHtml(t.slice(0, start)) +
+      "<mark>" + escapeHtml(t.slice(start, end)) + "</mark>" +
+      escapeHtml(t.slice(end))
+    );
+  }
+
+  function mapNormIndexToOriginal(original, normIndex) {
+    // Walk original building normalized string; return original index when norm length hits
+    let n = 0;
+    let i = 0;
+    let prevWasSep = true;
+    while (i < original.length) {
+      if (n === normIndex) return i;
+      const ch = original[i];
+      const low = ch.toLowerCase();
+      const isAlnum = /[\p{L}\p{N}]/u.test(low);
+      if (isAlnum) {
+        // consume full NFKD char if needed — simple path: one char → one norm char
+        n += 1;
+        prevWasSep = false;
+      } else {
+        if (!prevWasSep) {
+          // separator collapses to single space (unless start)
+          n += 1;
+          prevWasSep = true;
+        }
+      }
+      i += 1;
+    }
+    return n === normIndex ? original.length : null;
+  }
+
+  function highlightFirstToken(t, token) {
+    const re = new RegExp("(" + token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "i");
+    if (!re.test(t)) return escapeHtml(t);
+    return escapeHtml(t).replace(re, "<mark>$1</mark>");
+  }
+
+  function closeAc() {
+    acEl.classList.remove("open");
+    acEl.innerHTML = "";
+    inputEl.setAttribute("aria-expanded", "false");
+    acIndex = -1;
+    acItems = [];
+  }
+
+  function openAc() {
+    acEl.classList.add("open");
+    inputEl.setAttribute("aria-expanded", "true");
+  }
+
+  function renderAc(list, query) {
+    acItems = list;
+    acIndex = list.length ? 0 : -1;
+    if (!list.length) {
+      acEl.innerHTML = `<li class="ac-empty">No suggestions</li>`;
+      openAc();
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    list.forEach((entry, i) => {
+      const li = document.createElement("li");
+      li.setAttribute("role", "option");
+      li.id = "ac-opt-" + i;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.id = "ac-btn-" + i;
+      btn.setAttribute("role", "option");
+      btn.setAttribute("aria-selected", i === acIndex ? "true" : "false");
+      const plat = entry.hasPs5 !== false ? "PS5" : "PS4";
+      const kind = entry.kind === "edition" ? " · Edition" : "";
+      btn.innerHTML = `
+        <img src="${escapeHtml(entry.image || "")}" alt="" loading="lazy" />
+        <div style="min-width:0">
+          <div class="ac-name">${highlightMatch(entry.name, query)}</div>
+          <div class="ac-sub">${plat}${kind}</div>
+        </div>
+        <div class="ac-meta"></div>
+      `;
+      btn.addEventListener("click", () => pickAc(i));
+      li.appendChild(btn);
+      frag.appendChild(li);
+    });
+    acEl.innerHTML = "";
+    acEl.appendChild(frag);
+    openAc();
+  }
+
+  function setAcActive(i) {
+    const buttons = acEl.querySelectorAll("button[role='option']");
+    if (!buttons.length) return;
+    if (i < 0) i = buttons.length - 1;
+    if (i >= buttons.length) i = 0;
+    acIndex = i;
+    buttons.forEach((b, idx) => b.setAttribute("aria-selected", idx === i ? "true" : "false"));
+    buttons[i].scrollIntoView({ block: "nearest" });
+  }
+
+  function pickAc(i) {
+    const entry = acItems[i];
+    if (!entry) return;
+    inputEl.value = entry.name;
+    closeAc();
+    addGame(entry);
+    setStatus("");
+  }
+
+  async function fetchSuggestions(raw) {
+    const token = ++acToken;
+    const q = normalizeQuery(raw);
+    if (q.length < 2) {
+      closeAc();
+      return;
+    }
+    // light spinner inside dropdown while fetching
+    acEl.innerHTML = `<li class="ac-empty">…</li>`;
+    openAc();
+
+    try {
+      // Best-first: run the strongest variant(s) — full expanded title first.
+      const variants = queryVariants(raw);
+      // Prefer the most specific multi-word form for the API call
+      const primary =
+        variants.find((v) => v.split(/\s+/).length >= 3 && !isStopPhrase(v)) ||
+        variants[0] ||
+        raw;
+      let list = await searchRegion("us", primary, token, raw, "ac");
+      if (token !== acToken) return;
+
+      // One fallback variant if weak
+      if (!list.some((x) => x.score >= 0.75)) {
+        const alt = variants.find((v) => v !== primary) || variants[1] || raw;
+        const more = await searchRegion("us", alt, token, raw, "ac");
+        if (token !== acToken) return;
+        list = mergeVariantLists([list, more]);
+      }
+
+      // Drop junk (costumes/avatars/demos) and very weak hits for the dropdown
+      const cleaned = list
+        .filter((x) => x.kind !== "junk" && x.score >= 0.55)
+        .sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          if (b.hasPs5 !== a.hasPs5) return b.hasPs5 ? 1 : -1;
+          return (a.kind === "game" ? 0 : 1) - (b.kind === "game" ? 0 : 1);
+        })
+        .slice(0, 8);
+
+      if (token !== acToken) return;
+      if (!cleaned.length) {
+        acEl.innerHTML = `<li class="ac-empty">—</li>`;
+        openAc();
+        return;
+      }
+      renderAc(cleaned, raw);
+    } catch (_) {
+      if (token !== acToken) return;
+      closeAc();
+    }
+  }
+
+  async function ensureFx() {
+    if (fx && fx.rate) return fx;
+    try {
+      const data = await fetchJson("https://open.er-api.com/v6/latest/USD");
+      const rate = data && data.rates && data.rates.SAR;
+      if (rate) {
+        fx = { rate: Number(rate), time: data.time_last_update_utc || null };
+        return fx;
+      }
+    } catch (_) { /* fall through */ }
+    fx = { rate: 3.75, time: null, fallback: true };
+    return fx;
+  }
+
+  // SA catalog is English-first for many titles — try both languages.
+  async function searchRegionBothLangs(regionKey, query, token, scoreQuery, kind) {
+    if (regionKey !== "sa") {
+      return searchRegion(regionKey, query, token, scoreQuery, kind);
+    }
+    const ar = await searchRegion(regionKey, query, token, scoreQuery, kind);
+    let list = ar;
+    try {
+      const en = await searchRegionLang("en", query, token, scoreQuery, kind);
+      list = mergeVariantLists([ar, en]);
+    } catch (_) { /* keep ar */ }
+    return list;
+  }
+
+  async function searchRegionLang(lang, query, token, scoreQuery, kind) {
+    const r = REGIONS.sa;
+    const forQuery = scoreQuery || query;
+    const url =
+      CHIHIRO +
+      "/search/sa/" +
+      lang +
+      "/999/" +
+      encodeURIComponent(query) +
+      "?start=0&size=100";
+    const data = await fetchJson(url, token, kind);
+    const items = (data.links || [])
+      .filter((item) => isKeepable(item, forQuery))
+      .filter((item) => isOpenableProductId(item.id))
+      .map((item) => {
+        const price = parsePrice(item, "sa");
+        const storeUrl = productUrl("sa", item.id) || "";
+        const kind2 = productKind(item);
+        const plats = item.playable_platform || [];
+        const hasPs5 = plats.some((p) => String(p).toLowerCase().includes("ps5"));
+        const score = relevanceScore(item.name || "", forQuery);
+        return {
+          region: "sa",
+          id: item.id,
+          name: item.name || item.short_name || "",
+          image: pickImage(item),
+          price,
+          platforms: plats,
+          hasPs5,
+          kind: kind2,
+          type: item.game_contentType || "",
+          release: item.release_date || null,
+          score,
+          storeUrl,
+        };
+      });
+    const seen = new Map();
+    for (const it of items) {
+      const key = normName(it.name) + "|" + (it.hasPs5 ? "ps5" : "other");
+      const prev = seen.get(key);
+      if (!prev) seen.set(key, it);
+      else if (!prev.price.available && it.price.available) seen.set(key, it);
+      else if (prev.score < it.score) seen.set(key, it);
+      else if (prev.score === it.score && it.kind === "game" && prev.kind !== "game") {
+        seen.set(key, it);
+      }
+    }
+    return [...seen.values()].sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (b.hasPs5 !== a.hasPs5) return b.hasPs5 ? 1 : -1;
+      const kindRank = (k) => (k === "game" ? 0 : k === "edition" ? 1 : 2);
+      if (kindRank(a.kind) !== kindRank(b.kind)) return kindRank(a.kind) - kindRank(b.kind);
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  async function resolveEntryPrices(entry) {
+    // Never abort mid-resolve on searchToken — clearing the box or running a
+    // new search used to skip the price-proxy jobs entirely (blank cards).
+    const ensureSide = async (regionKey, name) => {
+      if (!name) return null;
+      const other = regionKey === "sa" ? entry.us : entry.sa;
+      const preferId = other && other.id ? other.id : null;
+      const existing = regionKey === "sa" ? entry.sa : entry.us;
+
+      // Keep a side that already has a price unless editions clash
+      if (
+        existing &&
+        priceHasValue(existing.price) &&
+        !sideNeedsReplace(entry, regionKey, existing) &&
+        isOpenableProductId(existing.id)
+      ) {
+        // Refresh stored URL to a real product page for this locale
+        const u = productUrl(regionKey, existing.id);
+        if (u) existing.storeUrl = u;
+        return existing;
+      }
+      // Identity is fine (even unpriced) — do NOT re-search and swap the SKU
+      if (
+        existing &&
+        existing.id &&
+        isOpenableProductId(existing.id) &&
+        !sideNeedsReplace(entry, regionKey, existing)
+      ) {
+        const u = productUrl(regionKey, existing.id);
+        if (u) existing.storeUrl = u;
+        return existing;
+      }
+
+      try {
+        const queries = [];
+        const pushQ = (s) => {
+          const q = normalizeQuery(s);
+          if (q && !queries.includes(q)) queries.push(q);
+        };
+        pushQ(name);
+        if (other && other.name) pushQ(other.name);
+        for (const v of queryVariants(name)) pushQ(v);
+        if (preferId) {
+          const pc = conceptCode(preferId);
+          if (pc) pushQ(pc.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2"));
+        }
+
+        let list = [];
+        for (const q of queries.slice(0, 5)) {
+          try {
+            const got = await searchRegionBothLangs(regionKey, q, null, name, null);
+            if (got.length) list = mergeVariantLists([list, got]);
+            // Chihiro often has no price for this title — do not burn 10
+            // queries waiting for one; the proxy fills price after identity.
+            if (list.some((x) => x.score >= 0.9)) break;
+          } catch (_) { /* next query */ }
+        }
+
+        const best = pickProductForTarget(list, name, preferId);
+        if (best) {
+          // Do not replace a priced side with an unpriced one
+          if (existing && priceHasValue(existing.price) && !priceHasValue(best.price)) {
+            const u = productUrl(regionKey, existing.id);
+            if (u) existing.storeUrl = u;
+            return existing;
+          }
+          if (regionKey === "sa") entry.sa = best;
+          else entry.us = best;
+          return best;
+        }
+      } catch (_) { /* ignore */ }
+      return existing;
+    };
+
+    // Identity only when missing / wrong SKU. Unpriced-but-openable sides go
+    // straight to the proxy — never block on the other region's chihiro search.
+    const needsIdentity = (regionKey) => {
+      const side = regionKey === "sa" ? entry.sa : entry.us;
+      if (!side) return true;
+      if (sideNeedsReplace(entry, regionKey, side)) return true;
+      if (!side.id || !isOpenableProductId(side.id)) return true;
+      return false;
+    };
+
+    const fillSide = (regionKey) => {
+      const side = regionKey === "sa" ? entry.sa : entry.us;
+      if (!side || priceHasValue(side.price)) return Promise.resolve();
+      const store = sideProductUrl(side, regionKey);
+      if (!store) return Promise.resolve();
+      if (!side.storeUrl) side.storeUrl = store;
+      return fetchStorePagePrice(store, regionKey).then((p) => {
+        // Re-read side: ensureSide may have replaced it while we fetched
+        const cur = regionKey === "sa" ? entry.sa : entry.us;
+        if (p && cur && cur.id === side.id) cur.price = p;
+      });
+    };
+
+    const anchor =
+      (entry.us && entry.us.name) || (entry.sa && entry.sa.name) || entry.name;
+    const saAnchor = anchor;
+    const needUs = needsIdentity("us");
+    const needSa = needsIdentity("sa");
+
+    // Always price known openable IDs in parallel — never wait on the other
+    // region's chihiro identity search (that was the 20s stall).
+    const early = [];
+    early.push(fillSide("us"));
+    early.push(fillSide("sa"));
+    if (needUs) early.push(ensureSide("us", anchor));
+    if (needSa) early.push(ensureSide("sa", saAnchor));
+    await Promise.all(early);
+
+    // After identity search, price anything new/still unpriced.
+    await Promise.all([fillSide("us"), fillSide("sa")]);
+
+    // Final gap fill (same as fillSide — kept for storeUrl refresh).
+    const jobs = [];
+    const saStore = sideProductUrl(entry.sa, "sa");
+    const usStore = sideProductUrl(entry.us, "us");
+    if (saStore && entry.sa) entry.sa.storeUrl = saStore;
+    if (usStore && entry.us) entry.us.storeUrl = usStore;
+    if (entry.sa && (!entry.sa.price || !entry.sa.price.available) && saStore) {
+      jobs.push(
+        fetchStorePagePrice(saStore, "sa").then((p) => {
+          if (p) entry.sa.price = p;
+        })
+      );
+    }
+    if (entry.us && (!entry.us.price || !entry.us.price.available) && usStore) {
+      jobs.push(
+        fetchStorePagePrice(usStore, "us").then((p) => {
+          if (p) entry.us.price = p;
+        })
+      );
+    }
+    if (jobs.length) await Promise.all(jobs);
+    return entry;
+  }
+
+  async function addGame(entry) {
+    closeAc();
+    const norm = normalizeEntry(entry);
+    if (!norm || !norm.key) return;
+    const key = norm.key;
+    // Ignore double-clicks / re-selects while this card is still resolving
+    if (loadingKeys.has(key)) return;
+    loadingKeys.add(key);
+
+    // Show the card immediately (with spinner), then fill both stores
+    saveEntry(norm);
+    setResultsVisible(false);
+    beaconSaved("add");
+
+    try {
+      await resolveEntryPrices(norm);
+    } catch (_) {
+      /* keep card with whatever we have */
+    } finally {
+      // Always write back — same key updates in place (never a second card),
+      // even if a newer search bumped the token mid-fetch.
+      try {
+        saveEntry(norm);
+      } catch (_) { /* ignore */ }
+      loadingKeys.delete(key);
+      renderSaved();
+      beaconSaved("add-done");
+    }
+  }
+
+  async function runSearch() {
+    const raw = inputEl.value.trim();
+    const q = normalizeQuery(raw);
+    if (!q) {
+      lastResults = [];
+      resultsEl.innerHTML = "";
+      resultsEl.hidden = false;
+      resultsEl.style.display = "";
+      resultsHiddenForDetail = false;
+      setStatus("");
+      return;
+    }
+
+    const token = ++searchToken;
+    setStatus(`<span class="spin"></span>`);
+    lastResults = [];
+    resultsEl.innerHTML = "";
+    resultsEl.hidden = false;
+    resultsEl.style.display = "";
+    resultsHiddenForDetail = false;
+    closeAc();
+
+    try {
+      const variants = queryVariants(raw);
+      const batches = [];
+
+      for (const v of variants) {
+        const us = await searchRegion("us", v, token, raw, "search");
+        if (token !== searchToken) return;
+        if (us.length) batches.push(us);
+        if (batches.some((b) => b.some((x) => x.score >= 0.9))) break;
+        if (variants.indexOf(v) < variants.length - 1) {
+          await new Promise((r) => setTimeout(r, 80));
+        }
+      }
+
+      if (token !== searchToken) return;
+
+      const usList = mergeVariantLists(batches);
+      if (!usList.length) {
+        setStatus("");
+        lastResults = [];
+        renderResults([]);
+        return;
+      }
+
+      const merged = usList.map((us) => ({
+        key: us.id,
+        name: us.name,
+        nameSa: null,
+        image: us.image,
+        score: us.score,
+        kind: us.kind,
+        hasPs5: us.hasPs5,
+        us,
+        sa: null,
+      }));
+
+      setStatus("");
+      renderResults(merged);
+      ensureFx();
+    } catch (err) {
+      if (err && err.message === "stale") return;
+      if (token !== searchToken) return;
+      setStatus("");
+    }
+  }
+
+  $("go").addEventListener("click", () => {
+    closeAc();
+    runSearch();
+  });
+
+  inputEl.addEventListener("keydown", (e) => {
+    const open = acEl.classList.contains("open") && acItems.length > 0;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!open) {
+        fetchSuggestions(inputEl.value.trim());
+        return;
+      }
+      setAcActive(acIndex + 1);
+      return;
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (open) setAcActive(acIndex - 1);
+      return;
+    }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (open && acIndex >= 0) {
+        pickAc(acIndex);
+      } else {
+        closeAc();
+        runSearch();
+      }
+      return;
+    }
+    if (e.key === "Escape") {
+      closeAc();
+      return;
+    }
+  });
+
+  inputEl.addEventListener("input", () => {
+    clearTimeout(debounceTimer);
+    const raw = inputEl.value.trim();
+    if (!raw) {
+      acToken++;
+      closeAc();
+      searchToken++;
+      lastResults = [];
+      resultsEl.innerHTML = "";
+      resultsEl.hidden = false;
+      resultsEl.style.display = "";
+      resultsHiddenForDetail = false;
+      setStatus("");
+      return;
+    }
+    debounceTimer = setTimeout(() => fetchSuggestions(raw), 200);
+  });
+
+  inputEl.addEventListener("focus", () => {
+    const raw = inputEl.value.trim();
+    if (raw.length >= 2 && !acEl.classList.contains("open")) {
+      fetchSuggestions(raw);
+    }
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".search-wrap")) closeAc();
+  });
+
+  loadSaved();
+  renderSaved();
+  beaconSaved("load");
+  if (saved.length) refreshSavedPrices();
+})();
+</script>
+</body>
+</html>

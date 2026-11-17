@@ -1,0 +1,44 @@
+# API Key
+key.txt
+
+# Proxy cache logs and PIDs
+proxy.log
+proxy.pid
+
+# Node cache
+node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp*
+*.tmp
+*.log
+
+# Editor backups
+*.bak
+*.orig
+*~
+
+# Backup and export files
+*.tar.gz
+*.zip
+*.7z
+
+# Git configuration files
+gitconfig
+git-credentials*
+.git-credentials
